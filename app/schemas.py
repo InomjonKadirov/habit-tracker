@@ -23,6 +23,7 @@ class HabitResponse(BaseModel):
     description: str | None
     is_active: bool
     created_at: datetime
+    current_streak: int = 0
 
 class CheckinCreate(BaseModel):
     checked_in_on: date | None = None  # defaults to today in the route

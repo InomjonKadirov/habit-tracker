@@ -14,6 +14,26 @@ def test_list_habits(client, habit):
     assert r.status_code == 200
     assert any(h["id"] == habit["id"] for h in r.json())
 
+
+def test_list_habits_includes_current_streak(client, habit):
+    from datetime import date, timedelta
+
+    today = date.today()
+    for i in range(3):
+        d = (today - timedelta(days=2 - i)).isoformat()
+        client.post(f"/habits/{habit['id']}/checkins", json={"checked_in_on": d})
+
+    body = client.get("/habits").json()
+    matched = next(h for h in body if h["id"] == habit["id"])
+    assert "current_streak" in matched
+    assert matched["current_streak"] == 3
+
+
+def test_list_habits_current_streak_zero_without_checkins(client, habit):
+    body = client.get("/habits").json()
+    matched = next(h for h in body if h["id"] == habit["id"])
+    assert matched["current_streak"] == 0
+
 def test_list_habits_active_only(client):
     active = client.post("/habits", json={"name": "Active"}).json()
     archived = client.post("/habits", json={"name": "Old"}).json()
