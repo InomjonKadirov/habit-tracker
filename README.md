@@ -11,6 +11,10 @@ A habit tracker app: a FastAPI service for creating habits, recording daily chec
 - **Pydantic schemas** for request/response validation (`app/schemas.py`).
 - **Test suite** using `pytest` + `httpx` against an in-memory SQLite database (`tests/`).
 
+## Requirements
+
+Minimum Python version: >=3.12
+
 ## Installation
 
 Dependencies are managed with [uv](https://github.com/astral-sh/uv). From the repository root:

@@ -1,0 +1,10 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Local SQLite database created by the app at runtime (DATABASE_URL default)
+habits.db
+habits.db-journal
+habits.db-wal
+habits.db-shm
