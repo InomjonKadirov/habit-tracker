@@ -31,7 +31,7 @@ uv run uvicorn app.main:app --reload
 
 The API is then served at `http://127.0.0.1:8000` (interactive docs at `/docs`). By default it uses a local SQLite file (`./habits.db`); override the database with the `DATABASE_URL` environment variable.
 
-Run the test suite:
+## Running the tests
 
 ```bash
 uv run pytest -q
