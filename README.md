@@ -17,13 +17,21 @@ Minimum Python version: >=3.12
 
 ## Installation
 
-Dependencies are managed with [uv](https://github.com/astral-sh/uv). From the repository root:
+The repository uses [uv](https://github.com/astral-sh/uv) (a `uv.lock` is committed and CI runs `uv sync`). From the repository root, the recommended command is:
 
 ```bash
 uv sync
 ```
 
 This installs the project and its dependencies declared in `pyproject.toml` (FastAPI, uvicorn, SQLAlchemy, python-multipart) plus the dev group (pytest, httpx).
+
+Alternatively, since the project is a standard `pyproject.toml` package (hatchling backend, no `requirements.txt`/Poetry), you can install it with pip in editable mode:
+
+```bash
+pip install -e .
+```
+
+Use `uv sync` to get the exact pinned dependency set from `uv.lock`; use `pip install -e .` when you prefer a plain pip workflow without uv.
 
 ## Running locally
 
