@@ -35,7 +35,7 @@ pip install -e .
 
 Use `uv sync` to get the exact pinned dependency set from `uv.lock`; use `pip install -e .` when you prefer a plain pip workflow without uv.
 
-## Run Locally
+## Running Locally
 
 Start the FastAPI app with uvicorn (declared as a dependency):
 
