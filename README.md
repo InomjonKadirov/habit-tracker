@@ -1,6 +1,8 @@
 # Habit Tracker
 
-A habit tracker app: a FastAPI service for creating habits, recording daily check-ins, and viewing streak/completion statistics.
+## Project Overview
+
+A habit tracker app: a FastAPI service for creating habits, recording daily check-ins, and viewing streak/completion statistics. Habits are persisted in a database (SQLite by default), each habit records daily check-ins (one per date), and the service exposes endpoints to create and list habits, record and review check-ins, and view per-habit streak and completion statistics. The habits list endpoint returns habits ordered by their creation timestamp, oldest first.
 
 ## Main features
 
@@ -33,7 +35,7 @@ pip install -e .
 
 Use `uv sync` to get the exact pinned dependency set from `uv.lock`; use `pip install -e .` when you prefer a plain pip workflow without uv.
 
-## Running locally
+## Run Locally
 
 Start the FastAPI app with uvicorn (declared as a dependency):
 

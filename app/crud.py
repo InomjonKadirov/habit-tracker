@@ -15,7 +15,7 @@ def list_habits(db: Session, active_only: bool = False) -> list[Habit]:
     q = db.query(Habit)
     if active_only:
         q = q.filter(Habit.is_active == True)
-    return q.order_by(Habit.created_at.desc()).all()
+    return q.order_by(Habit.created_at.asc()).all()
 
 def get_habit(db: Session, habit_id: int) -> Habit | None:
     return db.get(Habit, habit_id)
