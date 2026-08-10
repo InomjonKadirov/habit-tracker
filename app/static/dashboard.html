@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Habit Tracker — Dashboard</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font: 14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 2rem auto;
+      max-width: 720px;
+      padding: 0 1rem;
+    }
+    h1 { font-size: 1.4rem; margin: 0 0 0.25rem; }
+    p.subtitle { margin: 0 0 1rem; color: #666; }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+    #refresh-btn {
+      font: inherit;
+      padding: 0.3rem 0.9rem;
+      cursor: pointer;
+      border: 1px solid #888;
+      border-radius: 4px;
+      background: transparent;
+    }
+    #refresh-btn:hover { background: rgba(0, 0, 0, 0.06); }
+    #last-refreshed {
+      font-variant-numeric: tabular-nums;
+      color: #555;
+      white-space: nowrap;
+    }
+    ul#habits-list { list-style: none; padding: 0; margin: 1rem 0 0; }
+    #habits-list li { padding: 0.5rem 0; border-bottom: 1px solid #ddd; }
+    #habits-list li.empty { color: #777; border-bottom: none; }
+  </style>
+</head>
+<body>
+  <h1>Habit Tracker Dashboard</h1>
+  <p class="subtitle">Your active habits and their latest status.</p>
+
+  <div class="toolbar">
+    <button id="refresh-btn" type="button">Refresh</button>
+    <span id="last-refreshed" aria-live="polite"></span>
+  </div>
+
+  <ul id="habits-list">
+    <li class="empty">Loading…</li>
+  </ul>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const refreshBtn = document.getElementById("refresh-btn");
+      const listEl = document.getElementById("habits-list");
+      const lastRefreshedEl = document.getElementById("last-refreshed");
+
+      // Format the given Date as HH:MM:SS using the user's local timezone.
+      function formatTimeHHMMSS(date) {
+        const pad = (n) => String(n).padStart(2, "0");
+        return (
+          pad(date.getHours()) +
+          ":" +
+          pad(date.getMinutes()) +
+          ":" +
+          pad(date.getSeconds())
+        );
+      }
+
+      // Update the label after a refresh/data-load completes.
+      function setLastRefreshed() {
+        lastRefreshedEl.textContent =
+          "Last refreshed at: " + formatTimeHHMMSS(new Date());
+      }
+
+      function renderHabits(habits) {
+        if (!habits.length) {
+          listEl.innerHTML = '<li class="empty">No habits yet.</li>';
+          return;
+        }
+        listEl.innerHTML = habits
+          .map((h) => "<li>" + h.name + "</li>")
+          .join("");
+      }
+
+      async function loadHabits() {
+        const res = await fetch("/habits");
+        if (!res.ok) throw new Error("Request failed: " + res.status);
+        return res.json();
+      }
+
+      // Reuse the existing data-load path for both initial load and refresh.
+      async function refresh() {
+        try {
+          const habits = await loadHabits();
+          renderHabits(habits);
+          setLastRefreshed();
+        } catch (err) {
+          listEl.innerHTML =
+            '<li class="empty">Failed to load: ' + err.message + "</li>";
+        }
+      }
+
+      refreshBtn.addEventListener("click", refresh);
+      refresh(); // initial page load
+    })();
+  </script>
+</body>
+</html>

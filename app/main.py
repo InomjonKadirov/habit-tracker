@@ -1,6 +1,8 @@
 from datetime import date
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from app.database import get_db, create_tables
 from app import crud, stats
@@ -15,6 +17,16 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="Habit Tracker", lifespan=lifespan)
+
+# ── Dashboard ─────────────────────────────────────────────────────────────────
+
+DASHBOARD_HTML = Path(__file__).parent / "static" / "dashboard.html"
+
+
+@app.get("/", include_in_schema=False)
+def dashboard():
+    """Serve the dashboard page (with the refresh button + 'Last refreshed at' label)."""
+    return FileResponse(DASHBOARD_HTML)
 
 # ── Habits ────────────────────────────────────────────────────────────────────
 
