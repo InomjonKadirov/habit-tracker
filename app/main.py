@@ -1,6 +1,8 @@
-from datetime import date
+from datetime import date, datetime, timezone
+from html import escape
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from app.database import get_db, create_tables
 from app import crud, stats
@@ -15,6 +17,47 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(title="Habit Tracker", lifespan=lifespan)
+
+
+def _render_dashboard(habits, refreshed_at: str) -> str:
+    """Render a single self-contained HTML document for the dashboard."""
+    if habits:
+        items = "\n".join(
+            f"        <li>{escape(h.name)}</li>" for h in habits
+        )
+        list_html = f"      <ul>\n{items}\n      </ul>"
+    else:
+        list_html = "      <p>No habits yet</p>"
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Habit Tracker</title>
+  <style>
+    body {{ font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }}
+    h1 {{ margin-bottom: 0.25rem; }}
+    .refreshed {{ color: #666; font-size: 0.85rem; margin-top: 0; }}
+    ul {{ padding-left: 1.25rem; }}
+  </style>
+</head>
+<body>
+  <h1>My habits</h1>
+  <p class="refreshed">Last Refreshed: {escape(refreshed_at)}</p>
+{list_html}
+</body>
+</html>
+"""
+
+
+@app.get("/", response_class=HTMLResponse)
+def dashboard(db: Session = Depends(get_db)):
+    """Serve a self-contained HTML dashboard at the site root."""
+    habits = crud.list_habits(db)
+    refreshed_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return HTMLResponse(_render_dashboard(habits, refreshed_at))
+
 
 # ── Habits ────────────────────────────────────────────────────────────────────
 
