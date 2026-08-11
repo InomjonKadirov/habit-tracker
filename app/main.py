@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Habit Tracker", lifespan=lifespan)
 
 
-def _render_dashboard(habits, refreshed_at: str) -> str:
+def _render_dashboard(habits, total: int, refreshed_at: str) -> str:
     """Render a single self-contained HTML document for the dashboard."""
     if habits:
         items = "\n".join(
@@ -38,13 +38,19 @@ def _render_dashboard(habits, refreshed_at: str) -> str:
   <style>
     body {{ font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }}
     h1 {{ margin-bottom: 0.25rem; }}
-    .refreshed {{ color: #666; font-size: 0.85rem; margin-top: 0; }}
+    .total {{ color: #666; font-size: 0.9rem; margin-top: 0; margin-bottom: 0.5rem; }}
+    .toolbar {{ display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }}
+    .refreshed {{ color: #666; font-size: 0.85rem; margin: 0; }}
     ul {{ padding-left: 1.25rem; }}
   </style>
 </head>
 <body>
   <h1>My habits</h1>
-  <p class="refreshed">Last Refreshed: {escape(refreshed_at)}</p>
+  <p class="total">Total: {total}</p>
+  <div class="toolbar">
+    <button onclick="location.reload()">Refresh</button>
+    <p class="refreshed">Last refreshed at: {escape(refreshed_at)}</p>
+  </div>
 {list_html}
 </body>
 </html>
@@ -55,8 +61,9 @@ def _render_dashboard(habits, refreshed_at: str) -> str:
 def dashboard(db: Session = Depends(get_db)):
     """Serve a self-contained HTML dashboard at the site root."""
     habits = crud.list_habits(db)
-    refreshed_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    return HTMLResponse(_render_dashboard(habits, refreshed_at))
+    total = len(habits)
+    refreshed_at = datetime.now(timezone.utc).strftime("%H:%M:%S")
+    return HTMLResponse(_render_dashboard(habits, total, refreshed_at))
 
 
 # ── Habits ────────────────────────────────────────────────────────────────────
